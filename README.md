@@ -1,0 +1,1 @@
+# golden-ami-for-codebuild

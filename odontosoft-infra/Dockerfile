@@ -9,5 +9,5 @@ RUN terraform -version
 # Install python3
 
 RUN yum install python3 -y
-RUN python --version
-RUN  pip install terraform-compliance
+RUN python3 --version
+RUN  pip3 install terraform-compliance

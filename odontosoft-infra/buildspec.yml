@@ -1,0 +1,25 @@
+version: 0.2
+
+env:
+  exported-variables:
+    - image_name 
+
+phases:
+  install:
+    commands:
+      - cd odontosoft-infra
+    #   - sed -i 's+base-image+385819644237.dkr.ecr.us-east-1.amazonaws.com/amazon/aws-cli:latest+g' Dockerfile
+      - export DOCKER_TAG=$(date +%Y%m%d).$CODEBUILD_BUILD_NUMBER
+      - export ACCOUNT=$(aws sts  get-caller-identity --output text --query 'Account')
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 137112412989.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - docker build -t goldenami-odontosoft-infra:$DOCKER_TAG .
+      - docker tag goldenami-odontosoft-infra:$DOCKER_TAG $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/goldenami-odontosoft-infra:$DOCKER_TAG
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/goldenami-odontosoft-infra
+      - docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/goldenami-odontosoft-infra:$DOCKER_TAG
+  post_build:
+    commands:
+      - image_name=$ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/goldenami-odontosoft-infra:$DOCKER_TAG   
